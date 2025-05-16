@@ -1,0 +1,18 @@
+.chessboard-wrapper {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color:#3b3b3b;
+  border-radius: 5px;
+}
+
+.player-name {
+  font-size: 18px;
+  color: white;
+  margin: 8px 0;
+  text-align: center;
+}
+  

@@ -1,0 +1,101 @@
+.gamefetcher-container {
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background-color: #3b3b3b;
+  border-radius: 5px;
+  min-height: 522px;
+}
+
+.search-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #000000;
+  font-size: 16px;
+}
+
+.search-input::placeholder {
+  color: #888888;
+}
+
+.search-icon {
+  font-size: 18px;
+  margin-left: 10px;
+  color: #cccccc;
+  cursor: pointer;
+}
+
+.game-list {
+  width: 100%;
+  margin-top: 20px;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  max-height: 422px;
+}
+
+.game-card {
+  width: 100%;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  background-color: #eaeaea;
+}
+
+.players {
+  font-size: 16px;
+  color: #222222;
+  text-align: start;
+}
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  color: #666666;
+  margin-top: 6px;
+}
+
+.spinner-container {
+  position: absolute;
+  top: 200px;           /* instead of margin-top */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers its contents */
+  height: 460px;
+  color: #fff;
+  font-size: 24px;
+}
+
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
