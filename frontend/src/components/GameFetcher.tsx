@@ -70,8 +70,8 @@ const GameFetcher: React.FC<GameFetcherProps> = ({
       </div>
 
       {loading && (
-        <div className="spinner-container">
-          <div className="spinner" />
+        <div className="fetcher-spinner-container">
+          <div className="fetcher-spinner" />
           <p>Loading games...</p>
         </div>
       )}

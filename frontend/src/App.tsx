@@ -34,30 +34,28 @@ function App() {
         setCurrentMove={setCurrentMove} 
       />
       <div className="analysis-wrapper">
-        <div className="analysis-container">
-          {selectedGame ? (
-            <GameAnalysis 
-              game={selectedGame} 
-              onBack={() => setSelectedGame(null)}
-              analysis={analysis}
-              setAnalysis={setAnalysis}
-              currentMove={currentMove} 
-              setCurrentMove={setCurrentMove}
-            />
-          ) : (
-            <GameFetcher
-              username={username}
-              setUsername={setUsername}
-              games={games}
-              setGames={setGames}
-              loading={loading}
-              setLoading={setLoading}
-              error={error}
-              setError={setError}
-              onGameSelect={setSelectedGame}
-            />
-          )}
-        </div>
+        {selectedGame ? (
+          <GameAnalysis 
+            game={selectedGame} 
+            onBack={() => setSelectedGame(null)}
+            analysis={analysis}
+            setAnalysis={setAnalysis}
+            currentMove={currentMove} 
+            setCurrentMove={setCurrentMove}
+          />
+        ) : (
+          <GameFetcher
+            username={username}
+            setUsername={setUsername}
+            games={games}
+            setGames={setGames}
+            loading={loading}
+            setLoading={setLoading}
+            error={error}
+            setError={setError}
+            onGameSelect={setSelectedGame}
+          />
+        )}
       </div>
     </div>
   )

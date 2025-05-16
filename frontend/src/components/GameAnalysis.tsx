@@ -132,25 +132,25 @@ const CustomTooltip = ({ active, payload }) => {
 
   return (
     <div className="analysis-view">
+
       <div className="analysis-header">
-        <button onClick={onBack} className="back-button">
-          <MdArrowBack size={24} />
+        <button title="Back" onClick={onBack} className="back-button">
+          <MdArrowBack size={30} />
         </button>
         <h2 className="analysis-title">Game Review</h2>
       </div>
 
       {loading ? (
         <div className="analysis-spinner-container">
-          <div className="spinner" />
+          <div className="analysis-spinner" />
           <p>Analyzing…</p>
         </div>
       ) : (
         <div className="analysis-container">
-          <div className="plot-container" 
-            style={{backgroundColor: '#444', width: '100%', height: 100, borderRadius: '8px',  overflow: 'hidden'}}>
+          <div className="plot-container">
             {plotData && (
             <ResponsiveContainer width="100%" height={100}>
-              <AreaChart data={plotData} margin={{ top: 5,bottom:5}}>
+              <AreaChart data={plotData}>
                 <XAxis dataKey="moveIndex" hide />
                 <YAxis type="number" domain={[-7, 7]} allowDataOverflow={true} hide/>
                 <Tooltip content={<CustomTooltip />} />
@@ -186,17 +186,17 @@ const CustomTooltip = ({ active, payload }) => {
             </div>
 
           <div className="action-buttons">
-            <button title="Beginning" onClick={handleBeginning}>
+            <button title="Best">
               <MdStar size={30} /> Best
             </button>
-            <button title="Previous" onClick={handlePrevious}>
+            <button title="Retry">
               <MdRefresh size={30} /> Retry
             </button>
           </div>
 
           <div className="navigation-buttons">
-            <button title="Beginning" onClick={handleBeginning}>
-              <MdFirstPage size={30} />
+            <button title="Beginning">
+              <MdFirstPage size={30} onClick={handleBeginning}/>
             </button>
             <button title="Previous" onClick={handlePrevious}>
               <MdSkipPrevious size={30} />
