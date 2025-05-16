@@ -135,6 +135,11 @@
   white-space: nowrap;
 }
 
+.move-cell.selected {
+  background-color: #b78c28;
+  color: black;
+}
+
 .move-number {
   font-weight: 600;
   color: #ccc;

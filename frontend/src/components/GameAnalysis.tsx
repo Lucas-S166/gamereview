@@ -174,16 +174,28 @@ const CustomTooltip = ({ active, payload }) => {
               <div className="move-row" key={pair.number}>
                 <div className="move-cell move-number">{pair.number}.</div>
 
-                {pair.white?.move && (
-                  <div className="move-cell white-move">{pair.white.move}</div>
+                {pair.white && (
+                  <div
+                    className={`move-cell white-move${currentMove === pair.white ? ' selected' : ''}`}
+                    onClick={() => setCurrentMove(pair.white)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {pair.white.move}
+                  </div>
                 )}
 
-                {pair.black?.move && (
-                  <div className="move-cell black-move">{pair.black.move}</div>
+                {pair.black && (
+                  <div
+                    className={`move-cell black-move${currentMove === pair.black ? ' selected' : ''}`}
+                    onClick={() => setCurrentMove(pair.black)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {pair.black.move}
+                  </div>
                 )}
               </div>
-              ))}
-            </div>
+            ))}            
+          </div>
 
           <div className="action-buttons">
             <button title="Best">
