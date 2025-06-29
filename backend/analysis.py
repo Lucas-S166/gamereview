@@ -6,6 +6,10 @@ import chess
 import chess.pgn
 import chess.polyglot
 from chess.engine import Limit
+from sqlalchemy import text
+from database import get_db
+from sqlalchemy.orm import Session
+
 router = APIRouter()
 
 class PlayerInfo(BaseModel):
@@ -57,6 +61,7 @@ async def analyze_game(
     game: GameData,
     request: Request,
     wrapper: Dict[str, Any] = Depends(get_wrapper),
+    db: Session = Depends(get_db)
 ):
     if not game.pgn:
         raise HTTPException(status_code=400, detail="PGN data is required")
@@ -129,7 +134,6 @@ async def analyze_game(
                     "is_promotion": move.promotion is not None,
                 },
             })
-
         return {"MoveAnalyses": analysis_results}
 
     except HTTPException:

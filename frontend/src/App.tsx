@@ -37,7 +37,11 @@ function App() {
         {selectedGame ? (
           <GameAnalysis 
             game={selectedGame} 
-            onBack={() => setSelectedGame(null)}
+            onBack={() => {
+              setSelectedGame(null);
+              setCurrentMove(null);
+              setAnalysis(null);}
+            }
             analysis={analysis}
             setAnalysis={setAnalysis}
             currentMove={currentMove} 
