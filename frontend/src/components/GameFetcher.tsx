@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import './GameFetcher.css';
 
 interface GameFetcherProps {

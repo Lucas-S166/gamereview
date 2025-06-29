@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import EvalBar from './components/EvalBar'
 import ChessboardWrapper from './components/ChessboardWrapper'
@@ -24,7 +24,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <EvalBar orientation={orientation} analysis={analysis} currentMove={currentMove}/>
+      <EvalBar orientation={orientation} currentMove={currentMove}/>
       <ChessboardWrapper 
         username={username} 
         game={selectedGame} 

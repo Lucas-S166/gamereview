@@ -67,6 +67,7 @@
   overflow-y: auto;
   box-sizing: border-box;
   max-height: 422px;
+  border-radius: 2px;
 }
 
 .game-card {

@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './GameAnalysis.css'
-import { MdArrowBack, MdSkipPrevious, MdSkipNext, MdFirstPage, MdLastPage, MdStar, MdRefresh} from 'react-icons/md'
+import { MdArrowBack, MdArrowForward, MdPlayArrow, MdFirstPage, MdLastPage, MdStar, MdRefresh } from 'react-icons/md'
 import {
   AreaChart,
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
   ReferenceLine,
   ResponsiveContainer,
   Area,
-  Line
+  TooltipProps,
 } from 'recharts';
 
 interface Move {
@@ -18,13 +17,12 @@ interface Move {
   player: string
   move: string
   fen_after: string
-  evaluation: number
+  evaluation_after: number
 }
 
 interface Props {
   game: any;
   onBack: () => void;
-  setEvalScore: (score: number) => void;
   analysis: { MoveAnalyses: Move[] } | null;
   setAnalysis: React.Dispatch<React.SetStateAction<any>>;
   currentMove: Move | null;
@@ -34,7 +32,6 @@ interface Props {
 const GameAnalysis: React.FC<Props> = ({
   game,
   onBack,
-  setEvalScore,
   analysis,
   setAnalysis,
   currentMove,
@@ -56,6 +53,11 @@ const GameAnalysis: React.FC<Props> = ({
       .finally(() => setLoading(false))
   }, [game, setAnalysis])
 
+  // Helper to safely set current move
+  const safeSetCurrentMove = (move: Move | undefined) => {
+    setCurrentMove(move ?? null);
+  }
+
   const handlePrevious = () => {
     if (!analysis?.MoveAnalyses || !currentMove) return;
     const idx = analysis.MoveAnalyses.findIndex(
@@ -64,7 +66,7 @@ const GameAnalysis: React.FC<Props> = ({
     if (idx === 0) {
       setCurrentMove(null)
     } else if (idx > 0) {
-      setCurrentMove(analysis.MoveAnalyses[idx - 1])
+      safeSetCurrentMove(analysis.MoveAnalyses[idx - 1]);
     }
   }
 
@@ -77,7 +79,7 @@ const GameAnalysis: React.FC<Props> = ({
         (m: Move) => m.fen_after === currentMove.fen_after
       )
       if (idx < analysis.MoveAnalyses.length - 1) {
-        setCurrentMove(analysis.MoveAnalyses[idx + 1])
+        safeSetCurrentMove(analysis.MoveAnalyses[idx + 1]);
       }
     }
   }
@@ -88,9 +90,7 @@ const GameAnalysis: React.FC<Props> = ({
 
   const handleEnd = () => {
     if (analysis?.MoveAnalyses) {
-      setCurrentMove(
-        analysis.MoveAnalyses[analysis.MoveAnalyses.length - 1]
-      )
+      safeSetCurrentMove(analysis.MoveAnalyses[analysis.MoveAnalyses.length - 1]);
     }
   }
 
@@ -120,19 +120,22 @@ const GameAnalysis: React.FC<Props> = ({
   // Prepare data for the evaluation plot
   const plotData = analysis?.MoveAnalyses.map((m, idx) => ({
     moveIndex: idx + 1,
-    evaluation: m.evaluation_after/100,
-  }))
+    evaluation: m.evaluation_after / 100,
+  }));
 
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return <div  style={{ background: '#fff', padding: '5px 10px', border: '1px solid #ccc' }}>{payload[0].value.toFixed(2)}</div>;
-  }
-  return null;
-};
+  const CustomTooltip: React.FC<TooltipProps<number, string>> = ({ active, payload }) => {
+    if (active && payload && payload.length && payload[0]?.value !== undefined) {
+      return (
+        <div style={{ background: '#fff', padding: '5px 10px', border: '1px solid #ccc' }}>
+          {payload[0].value.toFixed(2)}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="analysis-view">
-
       <div className="analysis-header">
         <button title="Back" onClick={onBack} className="back-button">
           <MdArrowBack size={30} />
@@ -149,25 +152,27 @@ const CustomTooltip = ({ active, payload }) => {
         <div className="analysis-container">
           <div className="plot-container">
             {plotData && (
-            <ResponsiveContainer width="100%" height={100}>
-              <AreaChart data={plotData}>
-                <XAxis dataKey="moveIndex" hide />
-                <YAxis type="number" domain={[-7, 7]} allowDataOverflow={true} hide/>
-                <Tooltip content={<CustomTooltip />} />
-                <ReferenceLine y={0} stroke="gray" />
-                <Area
-                  type="monotone"
-                  dataKey="evaluation"
-                  stroke="#ffffff"
-                  fill="#ffffff"
-                  fillOpacity={1}
-                  dot={false}
-                  baseValue="dataMin"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height={100}>
+                <AreaChart data={plotData}>
+                  <XAxis dataKey="moveIndex" hide />
+                  <YAxis type="number" domain={[-7, 7]} allowDataOverflow={true} hide />
+                  <Tooltip content={<CustomTooltip />} />
+                  <ReferenceLine y={0} stroke="gray" />
+                  <Area
+                    type="monotone"
+                    dataKey="evaluation"
+                    stroke="#ffffff"
+                    fill="#ffffff"
+                    fillOpacity={1}
+                    dot={false}
+                    baseValue="dataMin"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             )}
           </div>
+
+          <div className="accuracy-container"> Accuracy</div>
 
           <div className="move-list">
             {pairedMoves().map(pair => (
@@ -177,7 +182,7 @@ const CustomTooltip = ({ active, payload }) => {
                 {pair.white && (
                   <div
                     className={`move-cell white-move${currentMove === pair.white ? ' selected' : ''}`}
-                    onClick={() => setCurrentMove(pair.white)}
+                    onClick={() => safeSetCurrentMove(pair.white)}
                     style={{ cursor: 'pointer' }}
                   >
                     {pair.white.move}
@@ -187,14 +192,14 @@ const CustomTooltip = ({ active, payload }) => {
                 {pair.black && (
                   <div
                     className={`move-cell black-move${currentMove === pair.black ? ' selected' : ''}`}
-                    onClick={() => setCurrentMove(pair.black)}
+                    onClick={() => safeSetCurrentMove(pair.black)}
                     style={{ cursor: 'pointer' }}
                   >
                     {pair.black.move}
                   </div>
                 )}
               </div>
-            ))}            
+            ))}
           </div>
 
           <div className="action-buttons">
@@ -208,13 +213,16 @@ const CustomTooltip = ({ active, payload }) => {
 
           <div className="navigation-buttons">
             <button title="Beginning">
-              <MdFirstPage size={30} onClick={handleBeginning}/>
+              <MdFirstPage size={30} onClick={handleBeginning} />
             </button>
             <button title="Previous" onClick={handlePrevious}>
-              <MdSkipPrevious size={30} />
+              <MdArrowBack size={30} />
+            </button>
+            <button title="Previous" onClick={handlePrevious}>
+              <MdPlayArrow size={30} />
             </button>
             <button title="Next" onClick={handleNext}>
-              <MdSkipNext size={30} />
+              <MdArrowForward size={30} />
             </button>
             <button title="End" onClick={handleEnd}>
               <MdLastPage size={30} />
@@ -226,4 +234,4 @@ const CustomTooltip = ({ active, payload }) => {
   )
 }
 
-export default GameAnalysis
+export default GameAnalysis;
