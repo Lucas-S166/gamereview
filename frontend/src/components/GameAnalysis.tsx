@@ -41,7 +41,7 @@ const GameAnalysis: React.FC<Props> = ({
 
   useEffect(() => {
     setLoading(true)
-    fetch('http://localhost:29873/analyze-game', {
+    fetch('/~lusullivan/gamereview/api/analyze-game', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(game),

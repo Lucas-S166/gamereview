@@ -1,13 +1,14 @@
 import os
 import psutil
-import multiprocessing
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
+from fastapi.staticfiles import StaticFiles
 
 import chess.polyglot
 from chess.engine import SimpleEngine, EngineTerminatedError
@@ -15,48 +16,42 @@ from chess.engine import SimpleEngine, EngineTerminatedError
 from chesscom_api import router as chess_router
 from analysis import router as analysis_router
 
-# Paths
-BASE = os.path.dirname(__file__)
-ENGINE_PATH = os.path.join(BASE, "Stockfish", "src", "stockfish")
-BOOK_PATH   = os.path.join(BASE, "Perfect_2023", "BIN", "Perfect2023.bin")
+BASE_DIR = Path(__file__).resolve().parent          # …/backend
+PROJECT_ROOT = BASE_DIR.parent                      # …/
+ENGINE_PATH = BASE_DIR / "Stockfish" / "src" / "stockfish"
+BOOK_PATH   = BASE_DIR / "Perfect_2023" / "BIN" / "Perfect2023.bin"
+
+FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    engine = SimpleEngine.popen_uci(ENGINE_PATH)
+    # Launch Stockfish
+    engine = SimpleEngine.popen_uci(str(ENGINE_PATH))
     psutil.Process(engine.transport._proc.pid).nice(19)
-    engine.configure({
-        "Threads": 16,
-        "Hash": 4096,
-    })
+    engine.configure({"Threads": 16, "Hash": 4096})
 
-    app.state.engine_wrapper = {
-        "engine": engine,
-        "lock": threading.Lock()
-    }
+    # Shared objects
+    app.state.engine_wrapper = {"engine": engine, "lock": threading.Lock()}
     app.state.executor = ThreadPoolExecutor(max_workers=4)
-    app.state.book = chess.polyglot.open_reader(BOOK_PATH)
+    app.state.book = chess.polyglot.open_reader(str(BOOK_PATH))
 
-    yield  
-    wrapper = getattr(app.state, "engine_wrapper", None)
-    if wrapper:
-        try:
-            wrapper["engine"].quit()
-        except EngineTerminatedError:
-            print("Engine already terminated. No need to quit.")
+    yield
 
-    executor = getattr(app.state, "executor", None)
-    if executor:
-        executor.shutdown(wait=False)
+    # Graceful shutdown
+    try:
+        app.state.engine_wrapper["engine"].quit()
+    except EngineTerminatedError:
+        print("Engine already terminated.")
 
-    book = getattr(app.state, "book", None)
-    if book:
-        book.close()
+    app.state.executor.shutdown(wait=False)
+    app.state.book.close()
+
 app = FastAPI(
     title="GameReview API",
     version="1.0.0",
     description="Endpoints for fetching and analyzing Chess.com games",
     lifespan=lifespan,
-    default_response_class=ORJSONResponse
+    default_response_class=ORJSONResponse,
 )
 
 app.add_middleware(
@@ -67,6 +62,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
-app.include_router(chess_router)
-app.include_router(analysis_router)
+app.include_router(chess_router,    prefix="/api")
+app.include_router(analysis_router, prefix="/api")
+
+if FRONTEND_DIST.exists():
+    app.mount(
+        "/",
+        StaticFiles(directory=str(FRONTEND_DIST), html=True),
+        name="frontend",
+    )
+else:
+    print(f"[WARN] Front-end bundle not found at {FRONTEND_DIST}. "
+          "Run `npm run build` in the frontend directory.")

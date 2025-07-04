@@ -25,7 +25,7 @@ const GameFetcher: React.FC<GameFetcherProps> = ({
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:29873/fetch-games', {
+      const response = await fetch('/~lusullivan/gamereview/api/fetch-games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
