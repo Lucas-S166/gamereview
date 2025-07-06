@@ -24,15 +24,17 @@ function App() {
 
   return (
     <div className="app-container">
-      <EvalBar orientation={orientation} currentMove={currentMove}/>
-      <ChessboardWrapper 
-        username={username} 
-        game={selectedGame} 
-        orientation={orientation} 
-        analysis={analysis} 
-        currentMove={currentMove} 
-        setCurrentMove={setCurrentMove} 
-      />
+      <div className="display-wrapper">
+        <EvalBar orientation={orientation} currentMove={currentMove}/>
+        <ChessboardWrapper 
+          username={username} 
+          game={selectedGame} 
+          orientation={orientation} 
+          analysis={analysis} 
+          currentMove={currentMove} 
+          setCurrentMove={setCurrentMove} 
+        />
+      </div>
       <div className="analysis-wrapper">
         {selectedGame ? (
           <GameAnalysis 
